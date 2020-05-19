@@ -1,0 +1,7 @@
+[package]
+name = "adsia"
+version = "0.1.0"
+authors = ["shaolang <shaolang@ymail.com>"]
+edition = "2018"
+
+[dependencies]
