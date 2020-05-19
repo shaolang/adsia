@@ -19,12 +19,14 @@ impl <T> Heap<T> {
         todo!();
     }
 
-    pub fn peek(&self) -> T {
-        todo!();
+    pub fn peek(&self) -> &T {
+        &self.pairs.get(0).unwrap().item
     }
 
-    pub fn insert(_item: T, _priority: i8) {
-        todo!();
+    pub fn insert(&mut self, item: T, priority: i8) {
+        let pair = Pair { item, priority };
+        self.pairs.push(pair);
+        self.bubble_up(self.pairs.len() - 1);
     }
 
     pub fn remove(_item: T) {
@@ -89,7 +91,7 @@ fn get_parent_index(index: usize, num_child: usize) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use crate::pq::get_parent_index;
+    use crate::pq::{Heap, get_parent_index};
 
     #[test]
     fn get_parent_index_for_num_child_as_two() {
@@ -104,5 +106,33 @@ mod tests {
         assert_eq!(get_parent_index(10, num_child), 3);
         assert_eq!(get_parent_index(11, num_child), 3);
         assert_eq!(get_parent_index(12, num_child), 3);
+    }
+
+    #[test]
+    fn insert_keeps_root_intact_when_new_item_has_lower_priority() {
+        let mut h: Heap<String> = Heap::new(2);
+        h.insert("hello".to_string(), 10);
+        h.insert("world".to_string(), 9);
+
+        assert_eq!(h.peek(), "hello");
+    }
+
+    #[test]
+    fn insert_changes_root_when_new_item_has_higher_priority() {
+        let mut h: Heap<String> = Heap::new(2);
+        h.insert("hello".to_string(), 9);
+        h.insert("world".to_string(), 10);
+
+        assert_eq!(h.peek(), "world");
+    }
+
+    #[test]
+    fn insert_keeps_root_intact_when_third_item_is_only_higher_than_second() {
+        let mut h: Heap<String> = Heap::new(2);
+        h.insert("hello".to_string(), 10);
+        h.insert("world".to_string(), 8);
+        h.insert("universe".to_string(), 9);
+
+        assert_eq!(h.peek(), "hello");
     }
 }
