@@ -40,7 +40,7 @@ impl <T> Heap<T> {
 
         while parent_index > 0 {
             let cur_index = parent_index;
-            parent_index = self.get_parent_index(parent_index);
+            parent_index = get_parent_index(parent_index, self.num_child);
 
             if self.priority(parent_index) < self.priority(cur_index) {
                 self.pairs.swap(parent_index, cur_index);
@@ -48,10 +48,6 @@ impl <T> Heap<T> {
                 break;
             }
         }
-    }
-
-    fn get_parent_index(&self, index: usize) -> usize {
-        (index - 1) / self.num_child
     }
 
     fn priority(&self, index: usize) -> i8 {
@@ -86,6 +82,27 @@ impl <T> Heap<T> {
 }
 
 
+fn get_parent_index(index: usize, num_child: usize) -> usize {
+    (index - 1) / num_child
+}
+
+
 #[cfg(test)]
 mod tests {
+    use crate::pq::get_parent_index;
+
+    #[test]
+    fn get_parent_index_for_num_child_as_two() {
+        let num_child = 2;
+        assert_eq!(get_parent_index(7, num_child), 3);
+        assert_eq!(get_parent_index(8, num_child), 3);
+    }
+
+    #[test]
+    fn get_parent_index_for_num_child_as_three() {
+        let num_child = 3;
+        assert_eq!(get_parent_index(10, num_child), 3);
+        assert_eq!(get_parent_index(11, num_child), 3);
+        assert_eq!(get_parent_index(12, num_child), 3);
+    }
 }
