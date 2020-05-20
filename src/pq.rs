@@ -1,16 +1,16 @@
 #[derive(Debug)]
-struct Pair<T> {
+struct Pair<T: PartialEq> {
     item: T,
     priority: i8,
 }
 
 #[derive(Debug)]
-pub struct Heap<T> {
+pub struct Heap<T: PartialEq> {
     pairs: Vec<Pair<T>>,
     num_child: usize,
 }
 
-impl <T> Heap<T> {
+impl <T: PartialEq> Heap<T> {
     pub fn new(num_child: usize) -> Heap<T> {
         Heap { num_child, pairs: Vec::new() }
     }
@@ -46,8 +46,19 @@ impl <T> Heap<T> {
         todo!();
     }
 
-    pub fn update(_item: T, _new_priority: i8) {
-        todo!();
+    pub fn update(&mut self, item: T, new_priority: i8) {
+        if let Some(index) = self.pairs.iter().position(|x| x.item == item) {
+            let old_priority = self.pairs[index].priority;
+            self.pairs[index].priority = new_priority;
+
+            if new_priority < old_priority {
+                println!("bubbling up");
+                self.bubble_up(index);
+            } else if new_priority > old_priority {
+                println!("pushing down");
+                self.push_down(index)
+            }
+        }
     }
 
     fn bubble_up(&mut self, index: usize) {
@@ -93,8 +104,10 @@ impl <T> Heap<T> {
     }
 
     fn highest_priority_child(&self, index: usize) -> usize {
+        let item_count = self.pairs.len();
         let indices = (0..self.num_child)
             .map(|i| self.num_child * index + i)
+            .filter(|i| i < &item_count)
             .collect::<Vec<usize>>();
         *indices.iter()
             .fold(&indices[0], |acc, x|
@@ -184,7 +197,63 @@ mod tests {
         h.insert(30, 3);
 
         h.top().unwrap();
-        println!("{:?}", h);
         assert_eq!(h.peek().unwrap(), &90);
+    }
+
+    #[test]
+    fn update_leaves_heap_intact_when_new_priority_is_the_same() {
+        let mut h: Heap<&str> = Heap::new(3);
+        h.insert("hello", 100);
+        h.insert("world", 90);
+        h.insert("universe", 80);
+        h.insert("seikai", 70);
+        h.insert("galaxy", 60);
+
+        h.update("universe", 80);
+        println!("{:?}", h);
+
+        assert_eq!(h.top().unwrap(), "hello");
+        assert_eq!(h.top().unwrap(), "world");
+        assert_eq!(h.top().unwrap(), "universe");
+        assert_eq!(h.top().unwrap(), "seikai");
+        assert_eq!(h.top().unwrap(), "galaxy");
+    }
+
+    #[test]
+    fn update_pushes_item_down_when_new_priority_is_lower() {
+        let mut h: Heap<&str> = Heap::new(3);
+        h.insert("hello", 100);
+        h.insert("world", 90);
+        h.insert("universe", 80);
+        h.insert("seikai", 70);
+        h.insert("galaxy", 60);
+
+        h.update("universe", 50);
+        println!("{:?}", h);
+
+        assert_eq!(h.top().unwrap(), "hello");
+        assert_eq!(h.top().unwrap(), "world");
+        assert_eq!(h.top().unwrap(), "seikai");
+        assert_eq!(h.top().unwrap(), "galaxy");
+        assert_eq!(h.top().unwrap(), "universe");
+    }
+
+    #[test]
+    fn update_bubbles_item_up_when_new_priority_is_higher() {
+        let mut h: Heap<&str> = Heap::new(3);
+        h.insert("hello", 100);
+        h.insert("world", 90);
+        h.insert("universe", 80);
+        h.insert("seikai", 70);
+        h.insert("galaxy", 60);
+
+        h.update("universe", 95);
+        println!("{:?}", h);
+
+        assert_eq!(h.top().unwrap(), "hello");
+        assert_eq!(h.top().unwrap(), "universe");
+        assert_eq!(h.top().unwrap(), "world");
+        assert_eq!(h.top().unwrap(), "seikai");
+        assert_eq!(h.top().unwrap(), "galaxy");
     }
 }
