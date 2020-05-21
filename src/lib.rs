@@ -1,4 +1,4 @@
-pub mod pq;
+pub mod heap;
 
 #[cfg(test)]
 mod tests {
