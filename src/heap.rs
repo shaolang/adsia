@@ -127,7 +127,7 @@ fn get_parent_index(index: usize, num_child: usize) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use crate::pq::{Heap, get_parent_index};
+    use super::{Heap, get_parent_index};
 
     #[test]
     fn get_parent_index_for_num_child_as_two() {
